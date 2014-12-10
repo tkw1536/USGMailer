@@ -7,6 +7,7 @@ A really simple mailer for the USG.
 ### Server Side
 * [NodeJS](http://nodejs.org/)
 * [Express](http://expressjs.com/)
+* [Express Session](https://github.com/expressjs/session)
 * [nodemailer](http://www.nodemailer.com/)
 * [html-to-js](https://www.npmjs.com/package/html-to-text)
 
