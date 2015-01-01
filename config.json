@@ -1,0 +1,11 @@
+{
+  "port": 8080,
+  "mail": "",
+  "default_allowed_mails": ["usg.pr"],
+  "db": "mongodb://localhost:27017/USGMailer",
+  "ldap": {
+    "url": "ldap://jacobs.jacobs-university.de:389",
+    "user_suffix": "@jacobs.jacobs-university.de",
+    "dn": "OU=Users,OU=CampusNet,DC=jacobs,DC=jacobs-university,DC=de"
+  }
+}

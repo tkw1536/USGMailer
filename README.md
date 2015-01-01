@@ -2,6 +2,31 @@
 
 A really simple mailer for the USG.
 
+## Usage
+### Setup
+```
+git clone https://github.com/tkw1536/USGMailer
+cd USGMailer
+[sudo] npm install .
+[sudo] npm install -g bower
+bower install
+#edit config.json to suit your needs
+```
+### Run
+```
+# be on-campus
+node index.js
+```
+
+# Db Structure
+
+{
+  "name": "example"
+  "email": "e.xample",
+  "admin": false,
+  "allowed_emails": ["usg.pr"]
+}
+
 ## What does it use?
 
 ### Server Side
