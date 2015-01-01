@@ -18,15 +18,6 @@ bower install
 node index.js
 ```
 
-# Db Structure
-
-{
-  "name": "example"
-  "email": "e.xample",
-  "admin": false,
-  "allowed_emails": ["usg.pr"]
-}
-
 ## What does it use?
 
 ### Server Side

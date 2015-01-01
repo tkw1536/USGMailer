@@ -23,11 +23,28 @@ var auth = function(user, pass, callback){
 
     auth.getUser(user, function(data){
       if(!data){
-        auth.createUser(user, function(err){
-          callback(err, user);
+        //check how many users we have
+        auth.getUsers(function(res, data){
+          if(!res){
+            //we can't get users.
+            //something went wrong.
+            callback(false);
+            console.log("Error, unable to check number of users!");
+          } else if(data.length == 0){
+            //we have 0 users.
+            //so we create the new one.
+            //he is automatically made admin.
+            auth.createUser(user, function(err){
+              callback(err, user);
+            });
+          } else {
+            callback(false);
+          }
         });
+
         return;
       } else {
+        //already exists
         callback(true, user);
       }
     });
@@ -42,7 +59,7 @@ auth.checkPassword = function(user, pass, callback){
       (user == "jack" && pass == "password") ||
       (user == "john" && pass == "password")
   ){
-    //TODO: return password here.
+    //TODO: return email here
     callback(true, user.toLowerCase());
   } else {
     callback(false);
@@ -50,20 +67,36 @@ auth.checkPassword = function(user, pass, callback){
 };
 
 auth.createUser = function(user, callback){
-  MongoDB.find({"isAdmin": true}, function(err, res){
-    res.count(function(err, count){
-      //count of existing admins
-      var newUser = {
-        "username": user,
-        "isAdmin": count == 0,
-        "allowedEmails": config.default_allowed_mails
-      };
+  //check if we already have that user
 
-      //TODO: Create a user.
-      MongoDB.insert(newUser, function(){
-        callback(true, newUser);
+
+  auth.getUsers(function(res, data){
+    if(!data){
+      var data = [];
+    }
+
+    if(data.indexOf(user) != -1){
+      //we already have this user.
+      callback(false);
+      return;
+    }
+
+    //so create the user.
+    MongoDB.find({"isAdmin": true}, function(err, res){
+      res.count(function(err, count){
+        //count of existing admins
+        var newUser = {
+          "username": user,
+          "isAdmin": count == 0,
+          "allowedEmails": config.default_allowed_mails
+        };
+
+        MongoDB.insert(newUser, function(){
+          callback(true, newUser);
+        });
       });
     });
+
   });
 }
 
@@ -90,14 +123,53 @@ auth.isAdmin = function(user, callback){
 
 auth.getUsers = function(callback){
   //get all user names
+  MongoDB.find(function(err, doc){
+    if(err){
+      callback(false);
+    } else {
+      doc.toArray(function(err, data){
+        if(err){
+          callback(false);
+        } else {
+          var users = [];
+          for(var i=0;i<data.length;i++){
+            users.push(data[i].username);
+          }
+          callback(true, users);
+        }
+      })
+    }
+  });
 }
 
-auth.setUser = function(user, data){
+auth.setUser = function(user, newData, callback){
   //sets a specific user
+
+  auth.getUser(user, function(data){
+    if(!data){
+      callback(false);
+    } else {
+      delete data._id; //drop the id
+
+      //set admin if boolean
+      if(typeof newData.isAdmin == "boolean"){
+        data.isAdmin = newData.isAdmin;
+      }
+
+      //set allowedEmails if an Array
+      if(Array.isArray(newData.allowedEmails)){
+        data.allowedEmails = newData.allowedEmails;
+      }
+
+      //everything else is ignored
+      MongoDB.update({"username": user}, data, callback);
+    }
+  });
 }
 
-auth.deleteUser = function(user){
-  //deletes a user
+auth.deleteUser = function(user, callback){
+  //delete a user.
+  MongoDB.remove({"username": user}, callback);
 }
 
 module.exports = auth;
