@@ -2,7 +2,7 @@ var
     fs = require("fs"),
     path = require("path");
 
-var basePath = path.join(__dirname, "..", "templates");
+var basePath = path.join(__dirname, "..", "..", "templates");
 
 module.exports.getAll = function(){
     var files = fs.readdirSync(basePath);

@@ -177,6 +177,25 @@ auth.setUser = function(user, newData, callback){
   });
 }
 
+auth.getAllowedEmails = function(user, callback){
+  auth.getUser(user, function(data){
+    if(!data){
+      callback(false);
+    } else {
+      var mails = data["allowedEmails"];
+      var uMails = [user];
+
+      for(var i=0;i<mails.length;i++){
+        if(uMails.indexOf(mails[i]) == -1){
+          uMails.push(mails[i]);
+        }
+      }
+
+      callback(true, uMails);
+    }
+  });
+}
+
 auth.deleteUser = function(user, callback){
   //delete a user.
   MongoDB.remove({"username": user}, callback);

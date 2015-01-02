@@ -6,7 +6,7 @@ var
 
 
 var transporter = nodemailer.createTransport(smtpTransport({
-    host: "exchange.jacobs-university.de",
+    host: "exchange.jacobs-university.de", //TODO: Read config
     port: 25
 }));
 

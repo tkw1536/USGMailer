@@ -1,7 +1,7 @@
 {
   "port": 8080,
-  "mail": "ab.de",
-  "default_allowed_mails": ["usg.pr"], 
+  "mail": "jacobs-university.de",
+  "default_allowed_mails": ["studentparliament", "usg.pr"],
   "db": "mongodb://localhost:27017/USGMailer",
   "ldap": {
     "url": "ldap://jacobs.jacobs-university.de:389",

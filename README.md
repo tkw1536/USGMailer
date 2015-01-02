@@ -34,5 +34,6 @@ node index.js
 ### Client Side
 * [jQuery](http://jquery.com)
 * [Bootstrap](http://getbootstrap.com/)
-* [bootstrap-wysiwyg](https://github.com/mindmup/bootstrap-wysiwyg/)
-* [bootstrap-tokenfield](http://sliptree.github.io/bootstrap-tokenfield)
+* [bootstrap-select](https://github.com/silviomoreto/bootstrap-select)
+* [bootstrap-tokenfield](http://sliptree.github.io/bootstrap-tokenfield/)
+* [line-control](https://github.com/suyati/line-control)

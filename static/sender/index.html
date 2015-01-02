@@ -9,21 +9,40 @@
     <meta name="author" content="">
 
     <title>USGMailer</title>
-    
-    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+
+    <link href="/lib/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
+    <link href="/lib/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet">
+    <link href="/lib/line-control/editor.css" type="text/css" rel="stylesheet">
+    <link href="/lib/components-font-awesome/css/font-awesome.css" type="text/css" rel="stylesheet">
   </head>
   <body>
     <div class="container">
       <div class="page-header">
-        <h1>Hello World!</h1>
+        <h1>Hello <span id='whoami'>World</span>! <span class='text-muted'>You can compose a new mail here. </span></h1>
       </div>
-      <p class="lead">This is the home page. </p>
-      <p>At the moment all you can do is <a href="/logout">Logout</a>. More will come later. </p>
+      <div id="mainarea">
+        Loading things ... There will be stuff here. Just be patient.
+      </div>
     </div>
+
+    <footer class="footer">
+      <div class="container">
+        No validation whatsoever will be done on entered data, so please be careful. <br />
+        <a class="btn btn-default" id="reload">Reload</a> - <a class="btn btn-default" href="/logout">Log out</a>
+      </div>
+    </footer>
 
     <script src="/lib/jquery/dist/jquery.min.js"></script>
     <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
 
-    <script src="/lib/js/sender.js"></script>
+    <script src="/lib/bootstrap-select/dist/js/bootstrap-select.js"></script>
+    <script src="/lib/bootstrap-tokenfield/dist/bootstrap-tokenfield.js"></script>
+    <script src="/lib/line-control/editor.js"></script>
+
+
+    <script src="/lib/js/sender/api.js"></script>
+    <script src="/lib/js/sender/gui.js"></script>
   </body>
 </html>
