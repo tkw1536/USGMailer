@@ -14,6 +14,7 @@ module.exports = function(app, session, path){
   //Backend: Get Users
   app.get("/admin/backend/get_users", session.needAdmin, function(req, res){
     auth.getUsers(function(success, users){
+      users.sort(); 
       res.jsonp({"success": success, "users": users});
     });
   });
@@ -25,9 +26,19 @@ module.exports = function(app, session, path){
     });
   });
 
+  app.get("/admin/backend/impersonate_user", session.needAdmin, function(req, res){
+    //flip session
+    req.session.user = req.param("user");
+    res.jsonp({"success": true})
+  })
+
   //Backend: Set User
   app.get("/admin/backend/set_user", session.needAdmin, function(req, res){
     var toParam = req.param("to");
+
+    if(toParam.hasOwnProperty("isAdmin") && typeof toParam.isAdmin === "string"){
+      toParam.isAdmin = (toParam.isAdmin.toLowerCase() === "true");
+    }
 
     //you can not de-admin yourself
     if(req.session.user == req.param("user") && toParam && toParam.isAdmin === false){
@@ -35,8 +46,8 @@ module.exports = function(app, session, path){
       return;
     }
 
-    auth.setUser(req.param("user"), toParam, function(success){
-      res.jsonp({"success": success});
+    auth.setUser(req.param("user"), toParam, function(err){
+      res.jsonp({"success": !err});
     });
   });
 

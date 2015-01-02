@@ -51,4 +51,9 @@ module.exports = function(app, session, path){
       });
   });
 
+  //WHOAMI
+  app.get('/backend/whoami', session.needUser, function(req, res){
+    res.jsonp({username: req.session.user});
+  });
+
 }

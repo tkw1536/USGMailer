@@ -98,7 +98,7 @@ auth.createUser = function(user, callback){
         var newUser = {
           "username": user,
           "isAdmin": count == 0,
-          "allowedEmails": config.default_allowed_mails
+          "allowedEmails": config.getConfig().default_allowed_mails
         };
 
         MongoDB.insert(newUser, function(){
