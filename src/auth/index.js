@@ -1,19 +1,12 @@
 var
-  MongoClient = require('mongodb').MongoClient
-  config = require("../config.json");
+  MongoClient = require('mongodb').MongoClient,
 
+  config = require("../config.js");
+
+//the database
 var MongoDB;
-MongoClient.connect(config.db, function(err, db) {
-  if(!err) {
-    MongoDB = db.collection("USGMailerAuth");
-    console.log("Connected to database. ");
-  } else {
-    console.error("Could not connect to database. ");
-    process.exit(1);
-  }
-});
 
-
+//have: authentication
 var auth = function(user, pass, callback){
   auth.checkPassword(user, pass, function(s, user){
     if(!s){
@@ -49,6 +42,23 @@ var auth = function(user, pass, callback){
       }
     });
   })
+};
+
+/**
+* Intialises the authentication and db thing.
+*/
+auth.init = function(args, next){
+  MongoClient.connect(config.getConfig().db, function(err, db) {
+    if(!err) {
+      MongoDB = db.collection("USGMailerAuth");
+      console.log("Connected to database. ");
+      next();
+    } else {
+      console.error("Could not connect to database. ");
+      process.exit(1);
+    }
+  });
+
 }
 
 auth.checkPassword = function(user, pass, callback){

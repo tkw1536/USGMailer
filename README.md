@@ -22,11 +22,14 @@ node index.js
 
 ### Server Side
 * [NodeJS](http://nodejs.org/)
+* [Bower](http://bower.io/)
+* [MongoDB](https://github.com/mongodb/node-mongodb-native)
 * [Express](http://expressjs.com/)
 * [Express Session](https://github.com/expressjs/session)
+* [MongoDB session Store](https://github.com/kcbanner/connect-mongo)
+* [Express body-parser](https://github.com/expressjs/body-parser)
 * [nodemailer](http://www.nodemailer.com/)
 * [html-to-js](https://www.npmjs.com/package/html-to-text)
-
 
 ### Client Side
 * [jQuery](http://jquery.com)
