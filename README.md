@@ -12,7 +12,7 @@ TODO List:
 ```
 git clone https://github.com/tkw1536/USGMailer
 cd USGMailer
-[sudo] npm install .
+npm install .
 [sudo] npm install -g bower
 bower install
 #edit config.json to suit your needs

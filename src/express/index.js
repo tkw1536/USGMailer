@@ -145,7 +145,7 @@ module.exports.init = function(args, next){
     serverListen();
   } else {
     store.clear(function(err){
-      console.log("Cleared old session(s) from the databse. ");
+      console.log("Cleared old session(s) from the database. ");
       serverListen();
     });
   }

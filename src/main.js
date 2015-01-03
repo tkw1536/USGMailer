@@ -16,9 +16,16 @@ module.exports.run = function(args){
 
   //add possible arguments
   parser.addArgument(["--config", "-c"], {defaultValue: "config.json", help: "Path to configuration file to use. "});
-  parser.addArgument(["--test-config", "-t"], {action: "storeTrue", help: "Test configuration file and exit. "});
   parser.addArgument(["--show-traceback", "-s"], {action: "storeTrue", help: "Show traceback when encountering major errors. "});
   parser.addArgument(["--keep-sessions"], {action: "storeTrue", help: "Keep sessions intact. Not recommended as it may cause security gaps. "});
+
+  (function(parser){
+    parser.addArgument(["--test-config", "-t"], {action: "storeTrue", help: "Tests configuration file and then exits. "});
+    parser.addArgument(["--clear-db", "-d"], {action: "storeTrue", help: "Clears the database on startup and then exits. "});
+    parser.addArgument(["--grant-user", "-u"], {metavar: "USER", help: "Grants the given user access and then exits. "});
+    parser.addArgument(["--grant-admin", "-a"], {metavar: "USER", help: "Grants the given user access, gives them admin privileges and then exits. "});
+    parser.addArgument(["--remove-user", "-r"], {metavar: "USER", help: "removes the given user from the database and then exits. "});
+  })(parser.addArgumentGroup({title: 'Startup modes'}).addMutuallyExclusiveGroup());
 
   //parse the arguments
   var args = parser.parseArgs(args.slice(2));

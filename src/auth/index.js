@@ -48,10 +48,64 @@ var auth = function(user, pass, callback){
 * Intialises the authentication and db thing.
 */
 auth.init = function(args, next){
+
+  var me = this;
+
   MongoClient.connect(config.getConfig().db, function(err, db) {
     if(!err) {
       MongoDB = db.collection("USGMailerAuth");
-      console.log("Connected to database. ");
+      console.log("Connected to database at ", config.getConfig().db);
+
+      if(args.clear_db){
+        //we are supposed to clear the database
+        me.theQuenue = [];
+        me.push(function(args, next){
+          auth.reset(function(err){
+            if(!err){
+              console.log("Database reset. ");
+            } else {
+              console.error(e);
+              console.log("Error resetting database, exiting with status 1. ");
+              process.exit(1);
+            }
+
+            next();
+          });
+        });
+      }
+
+      if(args.grant_user){
+
+        //grant the user access.
+        me.theQuenue = [];
+        me.push(function(args, next){
+          console.log("Granting '"+args.grant_user+"' access. ");
+          auth.grant(args.grant_user, false, next);
+        });
+      }
+
+      if(args.remove_user){
+
+        //remove the user.
+        me.theQuenue = [];
+        me.push(function(args, next){
+          console.log("Removing '"+args.remove_user+"' from database. ");
+          auth.deleteUser(args.remove_user, next);
+        });
+      }
+
+      if(args.grant_admin){
+
+        var user = "";
+
+        //grant the user admin
+        me.theQuenue = [];
+        me.push(function(args, next){
+          console.log("Granting '"+args.grant_admin+"' admin access. ");
+          auth.grant(args.grant_admin, true, next);
+        });
+      }
+
       next();
     } else {
       console.error("Could not connect to database. ");
@@ -75,6 +129,27 @@ auth.checkPassword = function(user, pass, callback){
     callback(false);
   }
 };
+
+auth.grant = function(user, forceAdmin, callback){
+
+  //force admin or not.
+  var finalCallback = function(){
+    if(forceAdmin){
+      auth.setUser(user, {isAdmin: true}, callback);
+    } else {
+      return callback(true);
+    }
+  }
+
+  //grant access to user.
+  auth.getUser(user, function(data){
+    if(!data){
+      auth.createUser(user, finalCallback);
+    } else {
+      finalCallback();
+    }
+  })
+}
 
 auth.createUser = function(user, callback){
   //check if we already have that user
@@ -181,7 +256,7 @@ auth.getAllowedEmails = function(user, callback){
   auth.getUser(user, function(data){
     if(!data){
       callback([]);
-      return; 
+      return;
     } else {
       var mails = data["allowedEmails"];
       var uMails = [user];
@@ -200,6 +275,11 @@ auth.getAllowedEmails = function(user, callback){
 auth.deleteUser = function(user, callback){
   //delete a user.
   MongoDB.remove({"username": user}, callback);
+}
+
+auth.reset = function(callback){
+  //reset the entire databse
+  MongoDB.remove({}, callback);
 }
 
 module.exports = auth;
