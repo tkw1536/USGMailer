@@ -180,7 +180,8 @@ auth.setUser = function(user, newData, callback){
 auth.getAllowedEmails = function(user, callback){
   auth.getUser(user, function(data){
     if(!data){
-      callback(false);
+      callback([]);
+      return; 
     } else {
       var mails = data["allowedEmails"];
       var uMails = [user];
@@ -191,7 +192,7 @@ auth.getAllowedEmails = function(user, callback){
         }
       }
 
-      callback(true, uMails);
+      callback(uMails);
     }
   });
 }

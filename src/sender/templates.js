@@ -1,6 +1,7 @@
 var
     fs = require("fs"),
-    path = require("path");
+    path = require("path"),
+    dot = require("dot");
 
 var basePath = path.join(__dirname, "..", "..", "templates");
 
@@ -66,18 +67,5 @@ module.exports.getTemplateIfAvailable = function(name){
 }
 
 module.exports.render = function(string){
-
-    var string = string;
-
-    return function(vars){
-        var string_local = string.toString();
-
-        for(var key in vars){
-            if(vars.hasOwnProperty(key)){
-                string_local = string_local.replace("{{"+key+"}}", vars[key]);
-            }
-        }
-
-        return string_local;
-    }
+    return dot.template(string);
 }

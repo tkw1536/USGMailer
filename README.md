@@ -29,6 +29,7 @@ node index.js
 * [NodeJS](http://nodejs.org/)
 * [Bower](http://bower.io/)
 * [MongoDB](https://github.com/mongodb/node-mongodb-native)
+* [doT](http://olado.github.io/doT/)
 * [Express](http://expressjs.com/)
 * [Express Session](https://github.com/expressjs/session)
 * [MongoDB session Store](https://github.com/kcbanner/connect-mongo)

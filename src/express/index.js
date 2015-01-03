@@ -4,6 +4,7 @@ var
     MongoStore = require("connect-mongo")(session),
     bodyParser = require("body-parser"),
     path = require("path"),
+    engine = require("express-dot-engine"),
 
     auth = require("../auth")
     config = require("../config.js");
@@ -99,6 +100,8 @@ module.exports.init = function(args, next){
       extended: true
   }));
 
+  //render using dot
+  app.engine('html', engine.__express);
 
 
 
