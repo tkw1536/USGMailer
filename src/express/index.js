@@ -4,7 +4,8 @@ var
     MongoStore = require("connect-mongo")(session),
     bodyParser = require("body-parser"),
     path = require("path"),
-    engine = require("express-dot-engine"),
+    dot = require("dot"),
+    fs = require("fs"),
 
     auth = require("../auth")
     config = require("../config.js");
@@ -101,7 +102,26 @@ module.exports.init = function(args, next){
   }));
 
   //render using dot
-  app.engine('html', engine.__express);
+  app.engine('html', function(path, options, callback){
+    try{
+      var file = fs.readFileSync(path);
+      var fn = dot.template(file.toString(), {
+        varname: "model",
+        evaluate:    /\{\{([\s\S]+?)\}\}/g,
+        interpolate: /\{\{=([\s\S]+?)\}\}/g,
+        encode:      /\{\{!([\s\S]+?)\}\}/g,
+        use:         /\{\{#([\s\S]+?)\}\}/g,
+        define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+        conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+        iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+      });
+
+      callback(null, fn(options));
+    } catch(e){
+        callback(e.message, false);
+    }
+
+  });
 
 
 
