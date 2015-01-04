@@ -1,110 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-    <title>USGMailer</title>
+  <title>USGMailer - Welcome</title>
 
-    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+  <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
 
-    <link href="/lib/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
-    <link href="/lib/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet">
-    <link href="/lib/line-control/editor.css" type="text/css" rel="stylesheet">
-    <link href="/lib/components-font-awesome/css/font-awesome.css" type="text/css" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container">
-      <div class="page-header">
-        <h1>Hello <span id='whoami'>World</span>! <span class='text-muted'>You can compose a new mail here. </span></h1>
-      </div>
-      <div id="mainarea">
-        <form class='form-horizontal'>
-          <!-- Subject -->
-          <div class="form-group">
-            <label for="subjectEmail" class="col-sm-2 control-label">Subject: </label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" id="subjectEmail" placeholder="Enter subject"{{? model.subject}} value="{{=model.subject}}"{{?}}>
-            </div>
-          </div>
+  <link href="/lib/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
+  <link href="/lib/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet">
+  <link href="/lib/line-control/editor.css" type="text/css" rel="stylesheet">
+  <link href="/lib/components-font-awesome/css/font-awesome.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>Hi {{=model.user}}! <span class='text-muted'>You can create and edit drafts here!</span></h1>
 
-          <hr />
-
-          <!-- From -->
-          <div class="form-group">
-            <label for="fromEmail" class="col-sm-2 control-label">From: </label>
-            <div class="col-sm-4">
-              <select name='fromEmail' id='fromEmail'>
-                {{~model.meta.fromMails :mail:index}}
-                  <option value='{{=mail}}'{{? mail == model.from}} selected{{?}}>{{=mail}}@{{=model.meta.mailSuffix}}</option>
-                {{~}}
-              </select>
-            </div>
-            <label for="templateMail" class="col-sm-2 control-label">Template: </label>
-            <div class="col-sm-4">
-              <select name='templateMail' id='templateMail'>
-                {{~model.meta.templates :template:index}}
-                  <option value='{{=template.title}}'{{? template == model.template}} selected{{?}}>{{=template.name}}</option>
-                {{~}}
-              </select>
-            </div>
-          </div>
-
-          <!-- To -->
-          <div class="form-group">
-            <label for="toEmail" class="col-sm-2 control-label">To: </label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" name="toEmail" id="toEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.to.join(",")}}">
-            </div>
-          </div>
-
-          <!-- CC -->
-          <div class="form-group">
-            <label for="ccEmail" class="col-sm-2 control-label">CC: </label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" name="ccEmail" id="ccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.cc.join(",")}}">
-            </div>
-          </div>
-
-          <!-- BCC -->
-          <div class="form-group">
-            <label for="ccEmail" class="col-sm-2 control-label">BCC: </label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" name="bccEmail" id="bccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.bcc.join(",")}}">
-            </div>
-          </div>
-
-          <hr />
-          <div class="row">
-            <div class="col-lg-12 nopadding">
-              <textarea id="textEmail"></textarea>
-            </div>
-          </div>
-
-        </form>
-
-      </div>
+      {{? model.message}}<div class="alert alert-danger"><strong>{{=model.message}}</strong></div>{{?}}
     </div>
 
-    <footer class="footer">
-      <div class="container">
-        No validation whatsoever will be done on entered data, so please be careful. <br />
-        <a class="btn btn-default" id="reload">Reload</a> - <a class="btn btn-default" href="/logout">Log out</a>
-      </div>
-    </footer>
+    <div id="mainarea">
+      <a href="/compose/" class="btn btn-primary btn-lg btn-block">Compose new draft</a>
+      <br />
+      <div class="list-group">
+        {{~model.drafts :draft:index}}
+          <a href="/compose/{{=draft.id}}" class="list-group-item">
+            {{! (draft.data.subject?draft.data.subject:"(no subject)") }}
+          </a>
+        {{~}}
+    </div>
+  </div>
 
-    <script src="/lib/jquery/dist/jquery.min.js"></script>
-    <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+  <footer class="footer">
+    <div class="container">
+      No validation whatsoever will be done on entered data, so please be careful. <br />
+      <a class="btn btn-default" id="reload">Reload</a> - <a class="btn btn-default" href="/logout">Log out</a>
+    </div>
+  </footer>
 
-    <script src="/lib/bootstrap-select/dist/js/bootstrap-select.js"></script>
-    <script src="/lib/bootstrap-tokenfield/dist/bootstrap-tokenfield.js"></script>
-    <script src="/lib/line-control/editor.js"></script>
-
-
-    <script src="/lib/js/sender/api.js"></script>
-    <script src="/lib/js/sender/gui.js"></script>
-  </body>
+  <script src="/lib/jquery/dist/jquery.min.js"></script>
+  <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+</body>
 </html>

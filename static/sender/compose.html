@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>USGMailer - Draft Editor</title>
+
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+
+    <link href="/lib/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
+    <link href="/lib/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet">
+    <link href="/lib/line-control/editor.css" type="text/css" rel="stylesheet">
+    <link href="/lib/components-font-awesome/css/font-awesome.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>Hi {{=model.meta.user}}! <span class='text-muted'>You are currently composing a mail. </span></h1>
+        {{? model.meta.message_ok}}<div class="alert alert-success"><strong>{{=model.meta.message_ok}}</strong></div>{{?}}
+        {{? model.meta.message_fail}}<div class="alert alert-danger"><strong>{{=model.meta.message_fail}}</strong></div>{{?}}
+      </div>
+      <div id="mainarea">
+        <form class='form-horizontal' action="/compose/{{=model.meta.id}}" method="POST" name="composer">
+
+          <input type="hidden" id="emailId" name="emailId", value="{{=model.meta.id}}">
+
+          <!-- Subject -->
+          <div class="form-group">
+            <label for="subjectEmail" class="col-sm-2 control-label">Subject: </label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="subjectEmail" name="subjectEmail" placeholder="Enter subject"{{? model.subject}} value="{{=model.subject}}"{{?}}>
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- From -->
+          <div class="form-group">
+            <label for="fromEmail" class="col-sm-2 control-label">From: </label>
+            <div class="col-sm-4">
+              <select name="fromEmail" id="fromEmail">
+                {{~model.meta.fromMails :mail:index}}
+                  <option value="{{=mail}}"{{? mail == model.from}} selected{{?}}>{{=mail}}@{{=model.meta.mailSuffix}}</option>
+                {{~}}
+              </select>
+            </div>
+            <label for="templateEmail" class="col-sm-2 control-label">Template: </label>
+            <div class="col-sm-4">
+              <select name="templateEmail" id="templateEmail">
+                {{~model.meta.templates :template:index}}
+                  <option value='{{=template.title}}'{{? template.title == model.template}} selected{{?}}>{{=template.name}}</option>
+                {{~}}
+              </select>
+            </div>
+          </div>
+
+          <!-- To -->
+          <div class="form-group">
+            <label for="toEmail" class="col-sm-2 control-label">To: </label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" name="toEmail" id="toEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.to.join(",")}}">
+            </div>
+          </div>
+
+          <!-- CC -->
+          <div class="form-group">
+            <label for="ccEmail" class="col-sm-2 control-label">CC: </label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" name="ccEmail" id="ccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.cc.join(",")}}">
+            </div>
+          </div>
+
+          <!-- BCC -->
+          <div class="form-group">
+            <label for="ccEmail" class="col-sm-2 control-label">BCC: </label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" name="bccEmail" id="bccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.bcc.join(",")}}">
+            </div>
+          </div>
+
+          <hr />
+          <div class="row">
+            <div class="col-lg-12 nopadding">
+              <textarea id="textEmail" name="textEmail">{{=model.text}}</textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <br />
+
+            <div class="btn-group" role="group">
+              <input type="submit" class="btn btn-primary btn-lg" name="action" value="Send" default>
+              <input type="submit" class="btn btn-default btn-lg" name="action" value="Save Draft">
+              <input type="submit" class="btn btn-default btn-lg" name="action" value="Back">
+              <input type="submit" class="btn btn-danger btn-lg" name="action" value="Delete">
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <a class="btn btn-default" id="reload">Reload</a> - <a class="btn btn-default" href="/logout">Log out</a>
+      </div>
+    </footer>
+
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <script src="/lib/bootstrap-select/dist/js/bootstrap-select.js"></script>
+    <script src="/lib/bootstrap-tokenfield/dist/bootstrap-tokenfield.js"></script>
+    <script src="/lib/line-control/editor.js"></script>
+
+
+    <script src="/lib/js/compose/api.js"></script>
+    <script src="/lib/js/compose/gui.js"></script>
+  </body>
+</html>

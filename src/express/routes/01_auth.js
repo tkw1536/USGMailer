@@ -1,6 +1,6 @@
 var
   express = require("express"),
-  auth = require("../../auth");
+  usermodel = require("../../usermodel");
 
 module.exports = function(app, session, path){
   console.log("Loading Routes: /login /logout");
@@ -13,7 +13,7 @@ module.exports = function(app, session, path){
         res.redirect("/");
       } else {
         //the user should login now.
-        res.sendFile(path("static", "auth", "login.html"));
+        res.render(path("static", "usermodel", "index.html"));
       }
     });
   });
@@ -23,7 +23,7 @@ module.exports = function(app, session, path){
       var post = req.body;
       var user = post.user || "";
       var pass = post.password || "";
-      auth(user, pass, function(success){
+      usermodel(user, pass, function(success){
         if(success){
           req.session.user = user;
           var redirect_to = "/";
@@ -36,7 +36,7 @@ module.exports = function(app, session, path){
           }
           res.redirect(redirect_to);
         } else {
-          res.sendFile(path("static", "auth", "fail.html"));
+          res.render(path("static", "usermodel", "index.html"), {"message": "Access denied. "});
         }
       });
   });
@@ -47,7 +47,7 @@ module.exports = function(app, session, path){
         try{
           delete req.session.user;
         } catch(e){}
-        res.sendFile(path("static", "auth", "logout.html"));
+        res.render(path("static", "usermodel", "index.html"), {"message": "You have been logged out. "});
       });
   });
 

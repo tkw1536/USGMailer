@@ -1,6 +1,6 @@
 var
   express = require("express")
-  auth = require("../../auth");
+  usermodel = require("../../usermodel");
 
 module.exports = function(app, session, path){
   console.log("Loading Routes: /admin");
@@ -13,15 +13,15 @@ module.exports = function(app, session, path){
 
   //Backend: Get Users
   app.get("/admin/backend/get_users", session.needAdmin, function(req, res){
-    auth.getUsers(function(success, users){
-      users.sort(); 
+    usermodel.getUsers(function(success, users){
+      users.sort();
       res.jsonp({"success": success, "users": users});
     });
   });
 
   //Backend: Get User
   app.get("/admin/backend/get_user", session.needAdmin, function(req, res){
-    auth.getUser(req.param("user"), function(user){
+    usermodel.getUser(req.param("user"), function(user){
       res.jsonp({"success": user?true:false, "user": user});
     });
   });
@@ -46,7 +46,7 @@ module.exports = function(app, session, path){
       return;
     }
 
-    auth.setUser(req.param("user"), toParam, function(err){
+    usermodel.setUser(req.param("user"), toParam, function(err){
       res.jsonp({"success": !err});
     });
   });
@@ -59,16 +59,21 @@ module.exports = function(app, session, path){
       return;
     }
 
-    auth.deleteUser(req.param("user"), function(err){
+    usermodel.deleteUser(req.param("user"), function(err){
       res.jsonp({"success": !err});
     });
   });
 
   //Backend: Create User
   app.get("/admin/backend/create_user", session.needAdmin, function(req, res){
-    auth.createUser(req.param("user"), function(success, newUser){
+    usermodel.createUser(req.param("user"), function(success, newUser){
       res.jsonp({"success": success, "newUser": newUser});
     });
   });
+
+  //Backend: whoami
+  app.get("/admin/backend/whoami", session.needAdmin, function(req, res){
+    res.jsonp({"username": req.session.user});
+  })
 
 }

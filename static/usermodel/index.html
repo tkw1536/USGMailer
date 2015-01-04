@@ -18,6 +18,7 @@
     <div class="container">
       <form class="form-signin" role="form" method="POST" action="/login">
         <h2 class="form-signin-heading">Please sign in</h2>
+        {{? model.message}}<div class="alert alert-danger"><strong>{{=model.message}}</strong></div>{{?}}
         <input type="text" class="form-control" placeholder="Username" required autofocus name="user">
         <input type="password" class="form-control" placeholder="Password" required name="password">
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>

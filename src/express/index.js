@@ -7,7 +7,7 @@ var
     dot = require("dot"),
     fs = require("fs"),
 
-    auth = require("../auth")
+    usermodel = require("../usermodel")
     config = require("../config.js");
 
 var getPath = function(){
@@ -28,7 +28,7 @@ authSession.checkAuth = function(req, res, callback){
     callback(false);
   } else {
     //check if the user is still in the database.
-    auth.getUser(req.session.user, function(doc){
+    usermodel.getUser(req.session.user, function(doc){
       if(!doc){
         callback(false);
       } else {
@@ -56,7 +56,7 @@ authSession.needUser = function(req, res, next){
 //check when we need an admin
 authSession.needAdmin = function(req, res, next) {
   return authSession.needUser(req, res, function(){
-    auth.isAdmin(req.session.user, function(isAdmin){
+    usermodel.isAdmin(req.session.user, function(isAdmin){
       //we are an admin
       if(isAdmin){
         next();

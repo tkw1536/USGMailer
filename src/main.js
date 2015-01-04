@@ -49,7 +49,7 @@ module.exports.run = function(args){
 
   if(!args.test_config){
     //intialise everything else.
-    theQueue.push(require("./auth").init);
+    theQueue.push(require("./usermodel").init);
     theQueue.push(require("./express").init);
   }
 
