@@ -18,7 +18,18 @@ var QueueRunner = function(args, on_error, on_finish){
 
 //push something to the quenue
 QueueRunner.prototype.push = function(){
-  return Array.prototype.push.apply(this.theQuenue, arguments);
+  Array.prototype.push.apply(this.theQuenue, arguments);
+  return this;
+}
+
+QueueRunner.prototype.unshift = function(){
+  Array.prototype.unshift.apply(this.theQuenue, arguments);
+  return this;
+}
+
+QueueRunner.prototype.clear = function(){
+  this.theQuenue = []; 
+  return this;
 }
 
 //run the next item from the quenue

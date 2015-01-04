@@ -2,11 +2,6 @@
 
 A really simple mailer for the USG.
 
-TODO List:
-
-* attachments
-* actual sending
-
 ## Usage
 ### Setup
 ```

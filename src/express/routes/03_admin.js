@@ -3,7 +3,8 @@ var
   usermodel = require("../../usermodel");
 
 module.exports = function(app, session, path){
-  console.log("Loading Routes: /admin");
+  process.stdout.write(" [DISABLED]");
+  return;
 
   //get the admin interface
   app.get('/admin', session.needAdmin, function (req, res) {

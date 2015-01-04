@@ -7,7 +7,7 @@ var
     dot = require("dot"),
     fs = require("fs"),
 
-    usermodel = require("../usermodel")
+    usermodel = require("../usermodel"),
     config = require("../config.js");
 
 var getPath = function(){
@@ -19,62 +19,20 @@ var getPath = function(){
   return path.join.apply(path, args);
 }
 
-var authSession = {}
-
-//check authorisation general
-authSession.checkAuth = function(req, res, callback){
-  //we do not have a user, so we are not logged in.
-  if (!req.session.user) {
-    callback(false);
-  } else {
-    //check if the user is still in the database.
-    usermodel.getUser(req.session.user, function(doc){
-      if(!doc){
-        callback(false);
-      } else {
-        callback(true);
-      }
-    });
-  }
-}
-
-//check when we need a user.
-authSession.needUser = function(req, res, next){
-  authSession.checkAuth(req, res, function(loggedIn){
-    if(!loggedIn){
-      //not authorised to view this page, store the path here.
-      req.session.dest_path = req.path;
-      res.redirect('/login');
-      res.end();
-    } else {
-      //ok, go on.
-      next();
-    }
-  });
-};
-
-//check when we need an admin
-authSession.needAdmin = function(req, res, next) {
-  return authSession.needUser(req, res, function(){
-    usermodel.isAdmin(req.session.user, function(isAdmin){
-      //we are an admin
-      if(isAdmin){
-        next();
-      } else {
-        res.status(401);
-        res.sendFile(getPath("static", "401.html"));
-      }
-    });
-  });
-}
-
-
-
-
 module.exports.loadRoutes = function(app){
+  console.log("Loading routes ...");
+
   require("fs").readdirSync(path.join(__dirname, "routes")).forEach(function(file) {
-    require("./routes/" + file)(app, authSession, getPath);
+    var route = file.substring(0, file.length - 3);
+
+    process.stdout.write("Loading route '"+file+"' ...");
+
+    require("./routes/" + file)(app, usermodel, getPath);
+
+    console.log(" Done. ");
   });
+
+  console.log("                   Done. ");
 }
 
 module.exports.init = function(args, next){
@@ -84,16 +42,16 @@ module.exports.init = function(args, next){
 
   //create a session store
   var store = new MongoStore({
-    url: config.getConfig().db
+    db: usermodel.core.db
   });
 
   //and use the sessions now.
   app.use(session({
       secret: "idontcare",
-      resave: false,
-      saveUninitialized: true,
+      resave: true,
+      saveUninitialized: false,
       store: store
-  }))
+  }));
 
   //also allow for parsing of post things
   app.use(bodyParser.json());
@@ -123,19 +81,17 @@ module.exports.init = function(args, next){
 
   });
 
-
-
   //Load all the routes.
   module.exports.loadRoutes(app);
 
   var serverListen = function(){
-    console.log("Starting server. ");
+    process.stdout.write("Starting server...");
 
     var server = app.listen(process.env.PORT || config.getConfig().port, function(){
         var host = server.address().address;
         var port = server.address().port;
 
-        console.log('Server listening at http://%s:%s', host, port);
+        console.log(' Done, server listening at http://%s:%s', host, port);
     })
 
     //next();
@@ -144,9 +100,16 @@ module.exports.init = function(args, next){
   if(args.keep_sessions){
     serverListen();
   } else {
+    process.stdout.write("Clearing old session(s) ...")
     store.clear(function(err){
-      console.log("Cleared old session(s) from the database. ");
-      serverListen();
+      if(!err){
+        console.log(" Done. ");
+        serverListen();
+      } else {
+        console.log(" Fail. ");
+        console.error(err);
+        process.exit(1);
+      }
     });
   }
 }

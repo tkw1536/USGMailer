@@ -1,11 +1,12 @@
 var
   express = require("express"),
-  mail = require("../../sender/mail.js"),
+  /*mail = require("../../sender/mail.js"),*/
   usermodel = require("../../usermodel"),
   templates = require("../../sender/templates.js");
 
 module.exports = function(app, session, path){
-  console.log("Loading Routes: / /compose");
+  process.stdout.write(" [DISABLED]");
+  return;
 
   var get_meta = function(req, res, callback){
     var avs = templates.getAll();
@@ -108,6 +109,7 @@ module.exports = function(app, session, path){
 
       return data;
     }
+
     return {
       "subject": req.param("subjectEmail"),
 
@@ -152,6 +154,7 @@ module.exports = function(app, session, path){
     var action = req.param("action");
 
     var draft = parsePostDraft(req);
+    console.log(draft);
 
     if(action == "Save Draft"){
       saveDraft(req.session.user, draft.id, draft, function(success){

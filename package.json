@@ -13,6 +13,7 @@
     "dot": "^1.0.3",
     "express": "^4.10.4",
     "express-session": "^1.9.3",
+    "extend": "^2.0.0",
     "html-to-text": "^1.1.1",
     "mongodb": "^1.4.26",
     "node-uuid": "^1.4.2",

@@ -4,10 +4,6 @@ var
   config = require("./config.js")
   QueueRunner = require("./lib/QueueRunner.js").QueueRunner;
 
-/**
-* Runs the main program.
-* @param args Arguments.
-*/
 module.exports.run = function(args){
   //set up argparse
   var parser = new ArgumentParser({
@@ -16,7 +12,6 @@ module.exports.run = function(args){
 
   //add possible arguments
   parser.addArgument(["--config", "-c"], {defaultValue: "config.json", help: "Path to configuration file to use. "});
-  parser.addArgument(["--show-traceback", "-s"], {action: "storeTrue", help: "Show traceback when encountering major errors. "});
   parser.addArgument(["--keep-sessions"], {action: "storeTrue", help: "Keep sessions intact. Not recommended as it may cause security gaps. "});
 
   (function(parser){
@@ -31,11 +26,7 @@ module.exports.run = function(args){
   var args = parser.parseArgs(args.slice(2));
 
   var theQueue = new QueueRunner(args, function(e){
-    if(args.show_traceback){
-      console.error(e.stack);
-    } else {
-      console.error(e);
-    }
+    console.error(e.stack);
 
     console.log("Error processing tasks, exiting with status 1. ");
     process.exit(1);
@@ -47,44 +38,49 @@ module.exports.run = function(args){
   //load the config
   theQueue.push(module.exports.init_config);
 
+  console.log("Loading components ...");
+
   if(!args.test_config){
     //intialise everything else.
-    theQueue.push(require("./usermodel").init);
+    theQueue.push(require("./usermodel").core.init);
     theQueue.push(require("./express").init);
   }
 
+  console.log("                       Done. ");
   //and run it
   theQueue.start();
 }
 
-/**
-* Loads the intial config file.
-* @param args Parsed Arguments
-* @param next Next thing to do.
-*/
 module.exports.init_config = function(args, next){
+  process.stdout.write("Loading config file '"+args.config+"' ...");
+
   //load the config file.
   try{
     config.load(args.config);
   } catch(e){
-    console.error("Unable to load config file: "+args.config);
+    console.log(" Fail. ");
     console.error(e.message);
     return process.exit(1);
   }
 
+  console.log(" Done. ");
+
   //validate it
   try{
+
+    process.stdout.write("Validating config file ...");
+
     var validationStatus = config.validate();
 
     // we validates the config file.
     if(validationStatus){
-      console.error("Validation of config file succeeded. ");
+      console.log(" Done. ");
     } else if(!validationStatus){
-      console.error("Validation of config file failed. ");
+      console.log(" Fail. ");
       return process.exit(1);
     }
   } catch(e){
-    console.error("Unable to validate config file: "+args.config);
+    console.log(" Fail. ")
     console.error(e.message);
     return process.exit(1);
   }
