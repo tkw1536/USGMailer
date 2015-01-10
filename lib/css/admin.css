@@ -1,0 +1,7 @@
+.tokenfield.form-control.input-sm, .allowedMails {
+  min-width: 250px;
+}
+
+.form-inline {
+  display: inline;
+}

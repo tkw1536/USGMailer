@@ -33,10 +33,21 @@ module.exports = function(usermodel){
 
   usermodel.core.init._02 = function(me, args, next){
     if(args.clear_db){
-      //TODO: Append Clear DB
-      console.log("clear_db unimplemented, exiting with status 1. ");
-      process.exit(1);
-      me.clear();
+      //Clear the database
+      me.clear().push(function(args, next){
+        process.stdout.write("Clearing database ...");
+
+        usermodel.users.reset(function(success, message){
+          if(success){
+            console.log(" Done. ");
+            next();
+          } else {
+            console.log(" FAIL. ");
+            console.log(message);
+            process.exit(1);
+          }
+        });
+      });
     }
 
     if(args.grant_user){
@@ -102,4 +113,57 @@ module.exports = function(usermodel){
       }
     }
   }
+
+  usermodel.core.expose_post = function(api_function, next, args){
+    //parse the arguments to the api function
+    var args = args;
+    args = Array.isArray(args)?args:[];
+
+    return function(req, res){
+      //read the right parameters and store them as parameters for the api call
+      var api_call = [];
+
+      for(var i=0;i<args.length;i++){
+        api_call.push(req.param(args[i]));
+      }
+
+      //and have the right callback
+      var api_callback = function(success, message){
+        next(req, res, success, message);
+      };
+      api_call.push(api_callback);
+
+      //and make the call and catch errors
+      try{
+        return api_function.apply(usermodel, api_call);
+      } catch(e){
+        api_callback(false, e.toString());
+      }
+    }
+  }
+
+  usermodel.core.expose_json_condition = function(api_function, condition, args){
+      var exposed_json = usermodel.core.expose_json(api_function, args);
+
+      return function(req, res){
+        if(condition(req, res)){
+          return exposed_json(req, res);
+        } else {
+          res.jsonp({"success": false, "message": "Security condition failed. "});
+        }
+      }
+  }
+
+  usermodel.core.expose_post_condition = function(api_function, next, condition, args){
+    var exposed_post = usermodel.core.expose_post(api_function, next, args);
+
+    return function(req, res){
+      if(condition(req, res)){
+        return exposed_post(req, res);
+      } else {
+        next(req, res, false, "Security condition failed. ");
+      }
+    }
+  }
+
 }

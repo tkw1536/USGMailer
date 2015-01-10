@@ -8,7 +8,7 @@ module.exports = function(app, usermodel, path){
         if(message){
           res.redirect("/");
         } else {
-          res.render(path("static", "usermodel", "index.html"));
+          res.render(path("static", "session", "index.html"));
         }
       } else {
         res.status(500);
@@ -30,7 +30,7 @@ module.exports = function(app, usermodel, path){
         }
         res.redirect(redirect_to);
       } else {
-        res.render(path("static", "usermodel", "index.html"), {"message": "Login failed. "});
+        res.render(path("static", "session", "index.html"), {"message": "Login failed. "});
       }
     });
   });
@@ -47,7 +47,7 @@ module.exports = function(app, usermodel, path){
   });
 
   app.get('/backend/whoami', usermodel.session.needUser, function(req, res){
-    res.jsonp({"success": true, "username": req.session.user});
+    res.jsonp({"success": true, "session": req.session.user});
   });
 
 }

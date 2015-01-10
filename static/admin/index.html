@@ -10,7 +10,9 @@
 
     <title>USGMailer - Admin</title>
 
-    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <link href="/lib/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet">
+    <link href="/lib/css/admin.css" type="text/css" rel="stylesheet">
   </head>
   <body>
     <div class="container">
@@ -19,7 +21,56 @@
       </div>
       <p id="admin">
         <!-- Admin GUI here -->
-        Admin GUI loading, please wait ...
+        {{? model.message}}<div class="alert alert-danger"><strong>{{=model.message}}</strong></div>{{?}}
+        {{? model.message_ok}}<div class="alert alert-success"><strong>{{=model.message_ok}}</strong></div>{{?}}
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Admin?</th>
+              <th>Allowed Emails</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{~model.users :person:index}}
+              <tr>
+                <th scope="row">{{=person.username}}</th>
+                <td>
+                  {{=person.isAdmin?"yes":"no"}}
+                  {{? person.username !== model.user}}
+                    <form action="/backend/admin/setIsAdmin" class="form-inline" method="POST"  style="display:inline; ">
+                      <input type="hidden" name="user" value="{{=person.username}}"/>
+                      <input type="hidden" name="isAdmin" value="{{= !person.isAdmin}}"/>
+                      <input class="btn btn-xs btn-danger" type='submit' value="{{=person.isAdmin?"Remove":"Make"}} Admin" />
+                    </form>
+                  {{?}}
+                </td>
+                <td>
+                  <form action="/backend/admin/setAllowedEmails" class="form-inline" method="POST">
+                    <input type="hidden" name="user" value="{{=person.username}}"/>
+                      <input type="text" class="form-control input-sm allowedEmails" style="min-width: 200px; " name="allowedEmails" value="{{=person.allowedEmails.join(", ")}}"/>
+                      <input class="btn btn-xs btn-warning" type='submit' value="Update" />
+                  </form>
+                <td>
+                  {{? person.username !== model.user}}
+                  <form action="/backend/admin/removeUser" class="form-inline" method="POST">
+                    <input type="hidden" name="user" value="{{=person.username}}"/>
+                    <input class="btn btn-xs btn-danger pull-right" type='submit' value="Delete User" />
+                  </form>
+                  {{?}}
+                </td>
+              </tr>
+            {{~}}
+            <tr>
+              <form action="/backend/admin/addUser" class="form-inline" method="POST">
+                <th scope="row"><input type="text" class="form-control" name="user" placeholder="Enter new username" /></th>
+                <td colspan="3"><input class="btn btn-xs btn-primary pull-right" type='submit' value="Grant access" /></td>
+              </form>
+            </tr>
+          </tbody>
+        </table>
       </p>
       <p></p>
     </div>
@@ -33,6 +84,7 @@
 
     <script src="/lib/jquery/dist/jquery.min.js"></script>
     <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/lib/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js"></script>
 
     <script src="/lib/js/admin/api.js"></script>
     <script src="/lib/js/admin/gui.js"></script>

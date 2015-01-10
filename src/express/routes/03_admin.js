@@ -2,79 +2,34 @@ var
   express = require("express")
   usermodel = require("../../usermodel");
 
-module.exports = function(app, session, path){
-  process.stdout.write(" [DISABLED]");
-  return;
-
-  //get the admin interface
-  app.get('/admin', session.needAdmin, function (req, res) {
-    res.sendFile(path("static", "admin", "index.html"));
-  });
-
-
-  //Backend: Get Users
-  app.get("/admin/backend/get_users", session.needAdmin, function(req, res){
-    usermodel.getUsers(function(success, users){
-      users.sort();
-      res.jsonp({"success": success, "users": users});
+module.exports = function(app, usermodel, path){
+  app.get("/admin", usermodel.session.needAdmin, function(req, res){
+    usermodel.admin.getAll(function(success, message){
+      res.render(path("static", "admin", "index.html"), {"message": success?undefined:message, "user": req.session.user, "users": success?message:[]});
     });
   });
 
-  //Backend: Get User
-  app.get("/admin/backend/get_user", session.needAdmin, function(req, res){
-    usermodel.getUser(req.param("user"), function(user){
-      res.jsonp({"success": user?true:false, "user": user});
-    });
-  });
+  var renderAdminResult = function(message_success){
+    return function(req, res, success, message){
+      usermodel.admin.getAll(function(successInner, messageInner){
+        if(success){
+          res.render(path("static", "admin", "index.html"), {"message_ok": message_success, "message": successInner?undefined:messageInner, "user": req.session.user, "users": successInner?messageInner:[]});
+        } else {
+          res.render(path("static", "admin", "index.html"), {"message": message, "user": req.session.user, "users": successInner?messageInner:[]});
+        }
+      });
+    };
+  }
 
-  app.get("/admin/backend/impersonate_user", session.needAdmin, function(req, res){
-    //flip session
-    req.session.user = req.param("user");
-    res.jsonp({"success": true})
-  })
+  //add a user
+  app.post("/backend/admin/addUser", usermodel.session.needAdmin, usermodel.core.expose_post(usermodel.users.createUser, renderAdminResult("New user created. "), ["user"]));
 
-  //Backend: Set User
-  app.get("/admin/backend/set_user", session.needAdmin, function(req, res){
-    var toParam = req.param("to");
+  //remove a user, you can't delete yourself
+  app.post("/backend/admin/removeUser", usermodel.session.needAdmin, usermodel.core.expose_post_condition(usermodel.users.deleteUser, renderAdminResult("User deleted. "), function(req, res){ return req.session.user !== req.param("user"); }, ["user"]));
 
-    if(toParam.hasOwnProperty("isAdmin") && typeof toParam.isAdmin === "string"){
-      toParam.isAdmin = (toParam.isAdmin.toLowerCase() === "true");
-    }
+  //set admin, you can't change yourself.
+  app.post("/backend/admin/setIsAdmin", usermodel.session.needAdmin, usermodel.core.expose_post_condition(usermodel.users.setIsAdmin, renderAdminResult("Admin privileges updated. "), function(req, res){return req.session.user !== req.param("user");}, ["user", "isAdmin"]));
 
-    //you can not de-admin yourself
-    if(req.session.user == req.param("user") && toParam && toParam.isAdmin === false){
-      res.jsonp({"success": false});
-      return;
-    }
-
-    usermodel.setUser(req.param("user"), toParam, function(err){
-      res.jsonp({"success": !err});
-    });
-  });
-
-  //Backend: Delete User
-  app.get("/admin/backend/delete_user", session.needAdmin, function(req, res){
-    //you can not delete you own user.
-    if(req.session.user == req.param("user")){
-      res.jsonp({"success": false});
-      return;
-    }
-
-    usermodel.deleteUser(req.param("user"), function(err){
-      res.jsonp({"success": !err});
-    });
-  });
-
-  //Backend: Create User
-  app.get("/admin/backend/create_user", session.needAdmin, function(req, res){
-    usermodel.createUser(req.param("user"), function(success, newUser){
-      res.jsonp({"success": success, "newUser": newUser});
-    });
-  });
-
-  //Backend: whoami
-  app.get("/admin/backend/whoami", session.needAdmin, function(req, res){
-    res.jsonp({"username": req.session.user});
-  })
-
+  //allowed Emails.
+  app.post("/backend/admin/setAllowedEmails", usermodel.session.needAdmin, usermodel.core.expose_post(usermodel.users.setAllowedEmails, renderAdminResult("Allowed emails updated. "), ["user", "allowedEmails"]));
 }

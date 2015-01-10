@@ -1,5 +1,7 @@
 var
-  extend = require("extend");
+  extend = require("extend")
+
+  config = require("../../config");
 
 module.exports = function(usermodel){
   usermodel.users = {}
@@ -22,6 +24,10 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.getUser = function(user, callback){
+    if(!user){
+      return callback(false, "Empty username!");
+    }
+
     usermodel.core.connection.findOne({"username": user}, function(err, result){
       if(!err && result){
         delete result._id;
@@ -47,6 +53,10 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.hasUser = function(user, callback){
+    if(!user){
+      return callback(false, "Empty username!");
+    }
+
     usermodel.core.connection.findOne({"username": user}, function(err, result){
       if(!err){
         callback(true, result?true:false);
@@ -57,6 +67,10 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.createUser = function(user, callback){
+    if(!user){
+      return callback(false, "Empty username!");
+    }
+
     return usermodel.users.createUser._01(user, callback);
   }
 
@@ -93,7 +107,11 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.setUser = function(user, data, callback){
-    usermodel.users.getUser(user, data, function(success, message){
+    if(!user){
+      return callback(false, "Empty username!");
+    }
+
+    usermodel.users.getUser(user, function(success, message){
       if(success){
         //extend the old user data.
         var newData = extend(message, data);
@@ -111,6 +129,10 @@ module.exports = function(usermodel){
   };
 
   usermodel.users.deleteUser = function(user, callback){
+    if(!user){
+      return callback(false, "Empty username!");
+    }
+
     usermodel.users.hasUser(user, function(success, message){
       if(success && message){
         usermodel.core.connection.remove({"username": user}, function(err){
@@ -137,6 +159,10 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.getUserProperty = function(user, property, defaultValue, callback){
+    if(!user){
+      return callback(false, "Empty username!");
+    }
+
     usermodel.users.getUser(user, function(success, message){
       if(success){
         var data = message;
@@ -156,7 +182,6 @@ module.exports = function(usermodel){
     //data to store
     var data = {};
     data[property] = value;
-
     return usermodel.users.setUser(user, data, callback);
   }
 
@@ -166,15 +191,32 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.setIsAdmin = function(user, isAdmin, callback){
-    return usermodel.users.getUserProperty(user, "isAdmin", isAdmin, callback);
+    var isAdmin = (typeof isAdmin == "boolean")?isAdmin:isAdmin=="true";
+    return usermodel.users.setUserProperty(user, "isAdmin", isAdmin, callback);
   }
 
   usermodel.users.getAllowedEmails = function(user, callback){
-    return usermodel.users.getUserProperty(user, "allowedEmails", [], callback);
+    return usermodel.users.getUserProperty(user, "allowedEmails", config.getConfig()["default_allowed_mails"].slice(0), function(success, message){
+      var message = message;
+      if(success){
+        message.push(user); //add the user
+        message = message.filter(function(elem, pos) { //remove doubles
+          return message.indexOf(elem) == pos;
+        });
+        callback(true, message);
+      } else {
+        callback(false, message);
+      }
+    });
   }
 
   usermodel.users.setAllowedEmails = function(user, allowedEmails, callback){
-    return usermodel.users.getUserProperty(user, "setAllowedEmails", allowedEmails, callback);
+    var allowedEmails = Array.isArray(allowedEmails)?allowedEmails:allowedEmails.split(", ");
+    allowedEmails = allowedEmails.filter(function(elem, pos) { //remove doubles and the user.
+      return (allowedEmails.indexOf(elem) == pos && elem !== user);
+    });
+
+    return usermodel.users.setUserProperty(user, "allowedEmails", allowedEmails, callback);
   }
 
   usermodel.users.getDrafts = function(user, callback){
@@ -182,6 +224,6 @@ module.exports = function(usermodel){
   }
 
   usermodel.users.setDrafts = function(user, drafts, callback){
-    return usermodel.users.getUserProperty(user, "storedDrafts", drafts, callback);
+    return usermodel.users.setUserProperty(user, "storedDrafts", drafts, callback);
   }
 }
