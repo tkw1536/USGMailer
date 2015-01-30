@@ -34,6 +34,21 @@ module.exports = function(app, usermodel, path){
     });
   }
 
+  var getDraftObject = function(req){
+    return {
+      "subject": req.body.subjectEmail,
+
+      "to": req.body.toEmail,
+      "cc": req.body.ccEmail,
+      "bcc": req.body.bccEmail,
+
+      "from": req.body.fromEmail,
+      "template": req.body.templateEmail,
+
+      "content": req.body.contentEmail
+    };
+  }
+
   app.get("/new", usermodel.session.needUser, function(req, res){
     usermodel.drafts.createNewDraft(req.session.user, function(success, message){
       if(success){
@@ -48,6 +63,32 @@ module.exports = function(app, usermodel, path){
     usermodel.drafts.hasDraft(req.session.user, req.params.id, function(success, message){
       if(success && message){
         renderComposePage(req, res, req.params.id);
+      } else {
+        res.status(404);
+        renderMainPage(req, res, "That draft does not exist. ");
+      }
+    });
+  });
+
+  app.post("/update/:id", usermodel.session.needUser, function(req, res){
+    usermodel.drafts.hasDraft(req.session.user, req.params.id, function(success, message){
+      if(success && message){
+        var action = req.body.action;
+        var draftObject = getDraftObject(req);
+
+        if(action == "Back"){
+          res.redirect("/"); //send them back, discarding the draft completely.
+        } else if(action == "Delete"){
+          usermodel.drafts.deleteDraft(req.session.user, req.params.id, function(success, message){
+            if(success){
+              renderMainPage(req, res, "Draft deleted. ");
+            } else {
+              renderMainPage(req, res, "Did not delete draft: "+message);
+            }
+          });
+        } else {
+          renderComposePage(req, res, req.params.id, "Unknown or missing action. ");
+        }
       } else {
         res.status(404);
         renderMainPage(req, res, "That draft does not exist. ");
