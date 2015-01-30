@@ -20,11 +20,10 @@
     <div class="container">
       <div class="page-header">
         <h1>Hi {{=model.meta.user}}! <span class='text-muted'>You are currently composing a mail. </span></h1>
-        {{? model.meta.message_ok}}<div class="alert alert-success"><strong>{{=model.meta.message_ok}}</strong></div>{{?}}
-        {{? model.meta.message_fail}}<div class="alert alert-danger"><strong>{{=model.meta.message_fail}}</strong></div>{{?}}
+        {{? model.message}}<div class="alert alert-danger"><strong>{{=model.message}}</strong></div>{{?}}
       </div>
       <div id="mainarea">
-        <form class='form-horizontal' action="/compose/{{=model.meta.id}}" method="POST" name="composer">
+        <form class='form-horizontal' action="/update/{{=model.meta.id}}" method="POST" name="composer">
 
           <input type="hidden" id="emailId" name="emailId", value="{{=model.meta.id}}">
 
@@ -32,7 +31,7 @@
           <div class="form-group">
             <label for="subjectEmail" class="col-sm-2 control-label">Subject: </label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="subjectEmail" name="subjectEmail" placeholder="Enter subject"{{? model.subject}} value="{{=model.subject}}"{{?}}>
+              <input type="text" class="form-control" id="subjectEmail" name="subjectEmail" placeholder="Enter subject"{{? model.draft.subject}} value="{{= model.draft.subject}}"{{?}}>
             </div>
           </div>
 
@@ -44,7 +43,7 @@
             <div class="col-sm-4">
               <select name="fromEmail" id="fromEmail">
                 {{~model.meta.fromMails :mail:index}}
-                  <option value="{{=mail}}"{{? mail == model.from}} selected{{?}}>{{=mail}}@{{=model.meta.mailSuffix}}</option>
+                  <option value="{{=mail}}"{{? mail == model.draft.from}} selected{{?}}>{{=mail}}@{{=model.meta.mailSuffix}}</option>
                 {{~}}
               </select>
             </div>
@@ -52,7 +51,7 @@
             <div class="col-sm-4">
               <select name="templateEmail" id="templateEmail">
                 {{~model.meta.templates :template:index}}
-                  <option value='{{=template.title}}'{{? template.title == model.template}} selected{{?}}>{{=template.name}}</option>
+                  <option value='{{=template.meta.title}}'{{? template.meta.title == model.draft.template}} selected{{?}}>{{=template.meta.name}}</option>
                 {{~}}
               </select>
             </div>
@@ -62,7 +61,7 @@
           <div class="form-group">
             <label for="toEmail" class="col-sm-2 control-label">To: </label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" name="toEmail" id="toEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.to.join(",")}}">
+              <input type="text" class="form-control" name="toEmail" id="toEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.draft.to.join(",")}}">
             </div>
           </div>
 
@@ -70,7 +69,7 @@
           <div class="form-group">
             <label for="ccEmail" class="col-sm-2 control-label">CC: </label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" name="ccEmail" id="ccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.cc.join(",")}}">
+              <input type="text" class="form-control" name="ccEmail" id="ccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.draft.cc.join(",")}}">
             </div>
           </div>
 
@@ -78,14 +77,14 @@
           <div class="form-group">
             <label for="ccEmail" class="col-sm-2 control-label">BCC: </label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" name="bccEmail" id="bccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.bcc.join(",")}}">
+              <input type="text" class="form-control" name="bccEmail" id="bccEmail" placeholder="Enter emails and press tab to confirm. " value="{{=model.draft.bcc.join(",")}}">
             </div>
           </div>
 
           <hr />
           <div class="row">
             <div class="col-lg-12 nopadding">
-              <textarea id="textEmail" name="textEmail">{{=model.text}}</textarea>
+              <textarea id="textEmail" name="textEmail">{{=model.draft.content}}</textarea>
             </div>
           </div>
 

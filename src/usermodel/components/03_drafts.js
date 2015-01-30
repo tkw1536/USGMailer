@@ -119,10 +119,6 @@ module.exports = function(usermodel){
             callback(true, true);
             return;
           }
-        }if(!draft.hasOwnProperty("subject") || typeof draft.subject !== "string"){
-          cleanDraft.subject = "";
-        } else {
-          cleanDraft.subject = draft.subject;
         }
 
         //hmm, can't find it.
@@ -169,10 +165,13 @@ module.exports = function(usermodel){
             }
 
             //TODO: to, cc, bcc
+            cleanDraft.to = [];
+            cleanDraft.cc = [];
+            cleanDraft.bcc = [];
 
             //validate subject
             if(!draft.hasOwnProperty("subject") || typeof draft.subject !== "string"){
-              cleanDraft.subject = "";
+              cleanDraft.subject = "(New mail)";
             } else {
               cleanDraft.subject = draft.subject;
             }
@@ -191,7 +190,7 @@ module.exports = function(usermodel){
               cleanDraft.content = draft.content;
             }
 
-            //check template, TODO: Implement available templates.
+            //check template
             if(!draft.hasOwnProperty("template") || typeof draft.template !== "string" || availableTemplates.indexOf(draft.template) == -1){
               cleanDraft.template = availableTemplates[0];
             } else {
@@ -205,13 +204,12 @@ module.exports = function(usermodel){
               cleanDraft.content_type = draft.content_type;
             }
 
-            //TODO: Render Draft here.
+            //Render the draft
             var theTemplate = templates.getTemplateIfAvailable(cleanDraft.template);
             var theDraft = theTemplate[cleanDraft.content_type] || theTemplate["text"] || theTemplate["html"];
 
             //render the draft
             try{
-              //render the draft as a copy of this object.
               cleanDraft.content_cooked = theDraft(JSON.parse(JSON.stringify(cleanDraft)));
             } catch(e){
               callback(false, "Unable to render template '"+cleanDraft.template+"': "+e.message);
