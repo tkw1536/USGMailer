@@ -13,24 +13,36 @@ module.exports = function(app, usermodel, path){
     });
   }
 
-  var renderComposePage = function(req, res, id, error){
-    usermodel.drafts.getDraft(req.session.user, id, function(success, message){
-      if(success){
-        res.render(path("static", "sender", "compose.html"), {
-          "message":error,
-          "meta": {
-            "user": req.session.user,
-            "id": id,
-            "fromMails": [req.session.user],
-            "templates": templates.getAll(),
-            "mailSuffix": config.getConfig()["mail"]
-          },
-          "draft": message
-        });
-      } else {
-        // There was an error rendering the draft.
+  var renderComposePage = function(req, res, id, message_fail, message_ok){
+    usermodel.users.getAllowedEmails(req.session.user, function(success, message){
+
+      if(!success){
+        //there was an error rendering the draft.
         renderMainPage(req, res, message);
+        return;
       }
+
+      var availableMails = message;
+
+      usermodel.drafts.getDraft(req.session.user, id, function(success, message){
+        if(success){
+          res.render(path("static", "sender", "compose.html"), {
+            "message": message_fail,
+            "message_ok": message_ok,
+            "meta": {
+              "user": req.session.user,
+              "id": id,
+              "fromMails": availableMails,
+              "templates": templates.getAll(),
+              "mailSuffix": config.getConfig()["mail"]
+            },
+            "draft": message
+          });
+        } else {
+          // There was an error rendering the draft.
+          renderMainPage(req, res, message);
+        }
+      });
     });
   }
 
@@ -52,7 +64,7 @@ module.exports = function(app, usermodel, path){
   app.get("/new", usermodel.session.needUser, function(req, res){
     usermodel.drafts.createNewDraft(req.session.user, function(success, message){
       if(success){
-        res.redirect("/compose/"+message);
+        renderComposePage(req, res, message, undefined, "Created new draft. ");
       } else {
         renderMainPage(req, res, message);
       }
@@ -76,7 +88,11 @@ module.exports = function(app, usermodel, path){
         var action = req.body.action;
         var draftObject = getDraftObject(req);
 
-        if(action == "Back"){
+        if(action == "Save Draft" || action == ""){
+          usermodel.drafts.setDraft(req.session.user, req.params.id, draftObject, function(success, message){
+            renderComposePage(req, res, req.params.id, success?undefined:"Did not save draft: "+message, success?"Draft saved. ":undefined);
+          });
+        } else if(action == "Back"){
           res.redirect("/"); //send them back, discarding the draft completely.
         } else if(action == "Delete"){
           usermodel.drafts.deleteDraft(req.session.user, req.params.id, function(success, message){

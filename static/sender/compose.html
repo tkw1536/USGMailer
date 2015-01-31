@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>USGMailer - Draft Editor</title>
+    <title>USGMailer - Composer</title>
 
     <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
 
@@ -21,9 +21,13 @@
       <div class="page-header">
         <h1>Hi {{=model.meta.user}}! <span class='text-muted'>You are currently composing a mail. </span></h1>
         {{? model.message}}<div class="alert alert-danger"><strong>{{=model.message}}</strong></div>{{?}}
+        {{? model.message_ok}}<div class="alert alert-success"><strong>{{=model.message_ok}}</strong></div>{{?}}
       </div>
       <div id="mainarea">
         <form class='form-horizontal' action="/update/{{=model.meta.id}}" method="POST" name="composer">
+          <!-- Current Id -->
+          <input type="hidden" id="idEmail" name="idEmail" value="{{= model.meta.id}}">
+
 
           <!-- Subject -->
           <div class="form-group">
@@ -90,8 +94,8 @@
             <br />
 
             <div class="btn-group" role="group">
-              <input type="submit" class="btn btn-primary btn-lg" name="action" value="Send" default>
-              <input type="submit" class="btn btn-default btn-lg" name="action" value="Save Draft">
+              <input type="submit" class="btn btn-default btn-lg" name="action" value="Save Draft" default>
+              <input type="submit" class="btn btn-primary btn-lg" name="action" value="Send">
               <input type="submit" class="btn btn-default btn-lg" name="action" value="Back">
               <input type="submit" class="btn btn-danger btn-lg" name="action" value="Delete">
             </div>
@@ -114,8 +118,6 @@
     <script src="/lib/bootstrap-tokenfield/dist/bootstrap-tokenfield.js"></script>
     <script src="/lib/line-control/editor.js"></script>
 
-
-    <script src="/lib/js/compose/api.js"></script>
     <script src="/lib/js/compose/gui.js"></script>
   </body>
 </html>

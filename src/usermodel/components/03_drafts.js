@@ -3,6 +3,8 @@ var
   extend = require("extend"),
   templates = require("../../sender/templates.js");
 
+var mailregEx = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 module.exports = function(usermodel){
   usermodel.drafts = {};
 
@@ -164,10 +166,40 @@ module.exports = function(usermodel){
               return;
             }
 
-            //TODO: to, cc, bcc
-            cleanDraft.to = [];
-            cleanDraft.cc = [];
-            cleanDraft.bcc = [];
+            var done=false;
+
+            ["to", "cc", "bcc"].map(function(to){
+              if(done){
+                return;
+              }
+
+              var toValue = draft[to];
+
+              if(typeof toValue == "string"){
+                if(toValue !== ""){
+                  toValue = draft[to].split(" ");
+                } else {
+                  toValue = [];
+                }
+              } else if(!Array.isArray(toValue)){
+                toValue = [];
+              }
+
+              for(var i=0;i<toValue.length;i++){
+                if(!mailregEx.test(toValue[i])){
+                  callback(false, "Invalid e-mail adress '"+toValue[i]+"'. ")
+                  done = true;
+                  return;
+                }
+              }
+
+              //and set the cleanDraft
+              cleanDraft[to] = toValue;
+            });
+
+            if(done){
+              return;
+            }
 
             //validate subject
             if(!draft.hasOwnProperty("subject") || typeof draft.subject !== "string"){
@@ -178,7 +210,7 @@ module.exports = function(usermodel){
 
             //check from
             if(!draft.hasOwnProperty("from") || typeof draft.from !== "string" || availableEmails.indexOf(draft.from) == -1){
-              cleanDraft.from = availableEmails[0]; //from myself.
+              cleanDraft.from = user; //from myself.
             } else {
               cleanDraft.from = draft.from;
             }
