@@ -177,7 +177,7 @@ module.exports = function(usermodel){
 
               if(typeof toValue == "string"){
                 if(toValue !== ""){
-                  toValue = draft[to].split(" ");
+                  toValue = draft[to].split(",");
                 } else {
                   toValue = [];
                 }
