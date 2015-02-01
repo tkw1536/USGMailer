@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>USGMailer - Composer</title>
+
+  <link href="/lib/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+
+  <link href="/lib/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
+  <link href="/lib/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet">
+  <link href="/lib/line-control/editor.css" type="text/css" rel="stylesheet">
+  <link href="/lib/components-font-awesome/css/font-awesome.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>Ready to send mail. The e-mail is previewed below. </span></h1>
+    </div>
+    <div id="mainarea">
+
+      <!-- Meta -->
+      <div>
+        <b>Subject: </b> {{!model.draft.subject}} <br />
+        <b>From: </b> {{!model.draft.from}}@{{!model.mailSuffix}} <br />
+        <b>To: </b> {{!model.draft.to.join(", ")}} <br />
+        <b>CC: </b> {{!model.draft.cc.join(", ")}} <br />
+        <b>BCC: </b> {{!model.draft.bcc.join(", ")}} <br />
+      </div>
+
+      <hr />
+      <div class="row">
+        <div class="col-lg-12 nopadding">
+          <iframe src="/preview/{{=model.id}}" frameBorder="1" style="width: 100%; min-height: 500px; ">
+            You need iFrames support in your browser for previewing to work. Click
+            <a href="/preview/{{=model.id}}" target="_blank">here</a> to preview the draft in a new tab.
+          </iframe>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <br />
+
+        <div class="btn-group" role="group">
+          <form action="/compose/{{=model.id}}" method="GET" class="form form-inline" style="display:inline; ">
+            <input type="submit" class="btn btn-default btn-lg" value="Back to composing">
+          </form>
+          <form action="/send/{{=model.id}}" method="GET" class="form form-inline" style="display:inline; ">
+            <input type="submit" class="btn btn-primary btn-lg" value="Send mail">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <a class="btn btn-default" id="reload">Reload</a> - <a class="btn btn-default" href="/logout">Log out</a>
+    </div>
+  </footer>
+
+  <script src="/lib/jquery/dist/jquery.min.js"></script>
+  <script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

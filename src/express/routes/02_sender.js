@@ -13,6 +13,20 @@ module.exports = function(app, usermodel, path){
     });
   }
 
+  var renderPreviewPage = function(req, res, id){
+    usermodel.drafts.getDraft(req.session.user, id, function(success, message){
+      if(success){
+        res.render(path("static", "sender", "preview.html"), {
+          "id": id,
+          "mailSuffix": config.getConfig()["mail"],
+          "draft": message
+        });
+      } else {
+        renderComposePage(req, res, id, "Unable to preview draft: "+message);
+      }
+    });
+  }
+
   var renderComposePage = function(req, res, id, message_fail, message_ok){
     usermodel.users.getAllowedEmails(req.session.user, function(success, message){
 
@@ -82,6 +96,28 @@ module.exports = function(app, usermodel, path){
     });
   });
 
+  app.get("/preview/:id", usermodel.session.needUser, function(req, res){
+    usermodel.drafts.getDraft(req.session.user, req.params.id, function(success, message){
+      if(success){
+        res.set('Content-Type', 'text/html');
+        res.send(message.content_cooked);
+      } else {
+        res.status(404);
+        renderMainPage(req, res, "That draft does not exist. ");
+      }
+    });
+  });
+
+  app.get("/ready/:id", usermodel.session.needUser, function(req, res){
+    usermodel.drafts.hasDraft(req.session.user, req.params.id, function(success, message){
+      if(success && message){
+        renderPreviewPage(req, res, req.params.id);
+      } else {
+        res.status(404);
+        renderMainPage(req, res, "That draft does not exist. ");
+      }
+    });
+  });
   app.post("/update/:id", usermodel.session.needUser, function(req, res){
     usermodel.drafts.hasDraft(req.session.user, req.params.id, function(success, message){
       if(success && message){
@@ -93,13 +129,27 @@ module.exports = function(app, usermodel, path){
             renderComposePage(req, res, req.params.id, success?undefined:"Did not save draft: "+message, success?"Draft saved. ":undefined);
           });
         } else if(action == "Back"){
-          res.redirect("/"); //send them back, discarding the draft completely.
+          usermodel.drafts.setDraft(req.session.user, req.params.id, draftObject, function(success, message){
+            if(success){
+              res.redirect("/");
+            } else {
+              renderComposePage(req, res, req.params.id, "Did not save draft: "+message);
+            }
+          });
         } else if(action == "Delete"){
           usermodel.drafts.deleteDraft(req.session.user, req.params.id, function(success, message){
             if(success){
               renderMainPage(req, res, "Draft deleted. ");
             } else {
               renderMainPage(req, res, "Did not delete draft: "+message);
+            }
+          });
+        } else if(action == "Preview & Send"){
+          usermodel.drafts.setDraft(req.session.user, req.params.id, draftObject, function(success, message){
+            if(success){
+              res.redirect("/ready/"+req.params.id);
+            } else {
+              renderComposePage(req, res, req.params.id, "Did not save draft: "+message);
             }
           });
         } else {
