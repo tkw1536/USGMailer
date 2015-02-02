@@ -1,7 +1,8 @@
 var
   uuid = require("node-uuid"),
   extend = require("extend"),
-  templates = require("../../sender/templates.js");
+  templates = require("../../sender/templates.js")
+  mailer = require("../../sender/mail.js");
 
 var mailregEx = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -288,6 +289,22 @@ module.exports = function(usermodel){
     });
 
   }
+
+  usermodel.drafts.sendMail = function(user, id, callback){
+    usermodel.drafts.getDraft(user, id, function(success, message){
+      if(success){
+        mailer(message, function(success, message){
+          if(success){
+            usermodel.drafts.deleteDraft(user, id, callback);
+          } else {
+            callback(false, message);
+          }
+        });
+      } else {
+        callback(false, message);
+      }
+    });
+  };
 
   usermodel.drafts.createNewDraftId = function(user, callback){
     usermodel.drafts.getDraftIds(user, function(success, message){

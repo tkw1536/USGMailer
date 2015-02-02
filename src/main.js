@@ -38,15 +38,23 @@ module.exports.run = function(args){
   //load the config
   theQueue.push(module.exports.init_config);
 
-  console.log("Loading components ...");
+
 
   if(!args.test_config){
-    //intialise everything else.
-    theQueue.push(require("./usermodel").core.init);
-    theQueue.push(require("./express").init);
+    theQueue.push(function(args, next){
+      console.log("Loading components ...");
+
+      //intialise everything else.
+      theQueue.push(require("./usermodel").core.init);
+      theQueue.push(require("./express").init);
+
+      console.log("                       Done. ");
+
+      //and next.
+      next();
+    });
   }
 
-  console.log("                       Done. ");
   //and run it
   theQueue.start();
 }

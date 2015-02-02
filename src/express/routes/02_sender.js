@@ -7,9 +7,13 @@ var
 
 module.exports = function(app, usermodel, path){
 
-  var renderMainPage = function(req, res, error){
+  var renderMainPage = function(req, res, error, no_error){
     usermodel.drafts.getDrafts(req.session.user, function(success, message){
-      res.render(path("static", "sender", "index.html"), {"user": req.session.user, "message":success?error:message, "drafts": message});
+      res.render(path("static", "sender", "index.html"), {
+        "user": req.session.user,
+        "message":success?error:message,
+        "message_ok": no_error,
+        "drafts": message});
     });
   }
 
@@ -118,6 +122,20 @@ module.exports = function(app, usermodel, path){
       }
     });
   });
+
+  app.get("/send/:id", usermodel.session.needUser, function(req, res){
+    usermodel.drafts.hasDraft(req.session.user, req.params.id, function(success, message){
+      if(success && message){
+        usermodel.drafts.sendMail(req.session.user, req.params.id, function(success, message){
+          renderMainPage(req, res, success?undefined:message, success?"Mail sent. ":undefined);
+        });
+      } else {
+        res.status(404);
+        renderMainPage(req, res, "That draft does not exist. ");
+      }
+    });
+  })
+
   app.post("/update/:id", usermodel.session.needUser, function(req, res){
     usermodel.drafts.hasDraft(req.session.user, req.params.id, function(success, message){
       if(success && message){

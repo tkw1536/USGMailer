@@ -22,6 +22,7 @@
       <h1>Hi {{=model.user}}! <span class='text-muted'>You can create and edit drafts here!</span></h1>
 
       {{? model.message}}<div class="alert alert-danger"><strong>{{=model.message}}</strong></div>{{?}}
+      {{? model.message_ok}}<div class="alert alert-success"><strong>{{=model.message_ok}}</strong></div>{{?}}
     </div>
 
     <div id="mainarea">

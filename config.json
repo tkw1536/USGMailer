@@ -7,5 +7,9 @@
     "url": "ldap://jacobs.jacobs-university.de:389",
     "user_suffix": "@jacobs.jacobs-university.de",
     "dn": "OU=Users,OU=CampusNet,DC=jacobs,DC=jacobs-university,DC=de"
+  },
+  "mailer": {
+    "domain": "exchange.jacobs-university.de",
+    "port": 25
   }
 }
