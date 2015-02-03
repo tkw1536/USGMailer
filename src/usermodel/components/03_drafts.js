@@ -1,7 +1,8 @@
 var
   uuid = require("node-uuid"),
   extend = require("extend"),
-  templates = require("../../sender/templates.js")
+  templates = require("../../sender/templates.js"),
+  htmlToText = require('html-to-text'),
   mailer = require("../../sender/mail.js");
 
 var mailregEx = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -247,6 +248,14 @@ module.exports = function(usermodel){
             } catch(e){
               callback(false, "Unable to render template '"+cleanDraft.template+"': "+e.message);
               return;
+            }
+
+            if(cleanDraft.content_type == "html"){
+              if(theTemplate["text"]){
+                cleanDraft.content_cooked_text = theTemplate["text"](JSON.parse(JSON.stringify(cleanDraft))); 
+              } else {
+                cleanDraft.content_cooked_text = htmlToText.fromString(cleanDraft.content_cooked);
+              }
             }
 
             //The end.
