@@ -188,6 +188,9 @@ module.exports = function(usermodel){
               }
 
               for(var i=0;i<toValue.length;i++){
+                //remove spaces from the adress
+                //fix for siggis bug. 
+                toValue[i] = toValue[i].replace(" ", "");
                 if(!mailregEx.test(toValue[i])){
                   callback(false, "Invalid e-mail adress '"+toValue[i]+"'. ")
                   done = true;
@@ -252,7 +255,7 @@ module.exports = function(usermodel){
 
             if(cleanDraft.content_type == "html"){
               if(theTemplate["text"]){
-                cleanDraft.content_cooked_text = theTemplate["text"](JSON.parse(JSON.stringify(cleanDraft))); 
+                cleanDraft.content_cooked_text = theTemplate["text"](JSON.parse(JSON.stringify(cleanDraft)));
               } else {
                 cleanDraft.content_cooked_text = htmlToText.fromString(cleanDraft.content_cooked);
               }
